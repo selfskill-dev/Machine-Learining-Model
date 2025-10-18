@@ -12,7 +12,9 @@ le_gender = joblib.load('le_gender.pkl')
 le_sub = joblib.load('le_subscription.pkl')
 le_contract = joblib.load('le_contract.pkl')
 
-st.title("Customer Churn Predictor")
+st.title("Welcome...")
+st.markdown("### 🔮 Machine Learning Model: Customer Churn Prediction App")
+
 st.write("Provide customer info and the model will predict churn (1=Churn, 0=Stay).")
 
 # --- Input fields (match your training columns)
@@ -52,15 +54,16 @@ X_input = scaler.transform(input_df)
 
 if st.button("Predict Churn"):
     pred = model.predict(X_input)[0]
-    prob = None
+    
+    # Get probability safely
     try:
-        prob = model.predict_proba(X_input)[0][1]
+        proba = model.predict_proba(X_input)[0]  # gives [prob_stay, prob_churn]
+        prob_churn = float(proba[1])             # probability of churn (class 1)
     except:
-        try:
-            prob = model.decision_function(X_input)[0]
-        except:
-            prob = None
+        prob_churn = None
+
+    # Display results
     if pred == 1:
-        st.error(f"Prediction: CHURN (probability: {prob:.2f})" if prob is not None else "Prediction: CHURN")
+        st.error(f"Prediction: **CHURN** (Probability: {prob_churn:.4f})" if prob_churn is not None else "Prediction: **CHURN**")
     else:
-        st.success(f"Prediction: STAY (probability: {prob:.2f})" if prob is not None else "Prediction: STAY")
+        st.success(f"Prediction: **STAY** (Probability: {1 - prob_churn:.4f})" if prob_churn is not None else "Prediction: **STAY**")
